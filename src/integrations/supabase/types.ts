@@ -14,7 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      farmer_profiles: {
+        Row: {
+          category: string
+          created_at: string
+          district: string | null
+          full_name: string
+          id: string
+          irrigation_access: boolean
+          landholding_ha: number
+          primary_crops: string[]
+          state: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          district?: string | null
+          full_name: string
+          id?: string
+          irrigation_access?: boolean
+          landholding_ha?: number
+          primary_crops?: string[]
+          state: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          district?: string | null
+          full_name?: string
+          id?: string
+          irrigation_access?: boolean
+          landholding_ha?: number
+          primary_crops?: string[]
+          state?: string
+        }
+        Relationships: []
+      }
+      schemes: {
+        Row: {
+          category: string
+          created_at: string
+          documents: string[]
+          eligibility_rules: Json
+          grant_value: number
+          id: string
+          land_limit: string | null
+          portal_url: string | null
+          status: string
+          summary: string
+          title: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          documents?: string[]
+          eligibility_rules?: Json
+          grant_value?: number
+          id?: string
+          land_limit?: string | null
+          portal_url?: string | null
+          status?: string
+          summary: string
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          documents?: string[]
+          eligibility_rules?: Json
+          grant_value?: number
+          id?: string
+          land_limit?: string | null
+          portal_url?: string | null
+          status?: string
+          summary?: string
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
