@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   BadgeIndianRupee,
+  Download,
   CheckCircle2,
   ExternalLink,
   FileText,
@@ -26,15 +27,24 @@ import {
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { formatINR, STATUS_META, type Scheme } from "@/lib/farmpay";
+import { useI18n } from "@/lib/i18n";
+import { generateSchemePassport, type PassportProfile } from "@/utils/pdfGenerator";
 
 const FILTERS = [
-  { value: "all", label: "All" },
-  { value: "eligible", label: "🟢 Eligible" },
-  { value: "likely", label: "🟡 Likely Match" },
-  { value: "potential", label: "🔵 Potential" },
+  { value: "all", dot: "", key: "filterAll" },
+  { value: "eligible", dot: "🟢", key: "statusEligible" },
+  { value: "likely", dot: "🟡", key: "statusConditional" },
+  { value: "potential", dot: "🔵", key: "statusPotential" },
 ];
 
-export function SchemeDashboardTab() {
+const STATUS_KEY: Record<string, string> = {
+  eligible: "statusEligible",
+  likely: "statusConditional",
+  potential: "statusPotential",
+};
+
+export function SchemeDashboardTab({ profile }: { profile: PassportProfile }) {
+  const { t } = useI18n();
   const [filter, setFilter] = useState("all");
   const [why, setWhy] = useState<Scheme | null>(null);
   const [docs, setDocs] = useState<Scheme | null>(null);
@@ -59,16 +69,16 @@ export function SchemeDashboardTab() {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-2 rounded-2xl field-grad p-4 text-primary-foreground">
-        <Stat icon={<Layers className="size-4" />} value={String(schemes.length)} label="Matched" />
+        <Stat icon={<Layers className="size-4" />} value={String(schemes.length)} label={t("matched")} />
         <Stat
           icon={<CheckCircle2 className="size-4" />}
           value={String(highCount)}
-          label="High eligibility"
+          label={t("highEligibility")}
         />
         <Stat
           icon={<BadgeIndianRupee className="size-4" />}
           value={formatINR(totalValue)}
-          label="Grant value"
+          label={t("grantValue")}
         />
       </div>
 
@@ -84,10 +94,19 @@ export function SchemeDashboardTab() {
                 : "border-border bg-card text-muted-foreground hover:text-foreground",
             )}
           >
-            {f.label}
+            {f.dot} {t(f.key)}
           </button>
         ))}
       </div>
+
+      <Button
+        onClick={() => generateSchemePassport(profile, schemes)}
+        disabled={isLoading || schemes.length === 0}
+        className="h-12 w-full bg-accent text-base font-semibold text-accent-foreground hover:bg-accent/90"
+      >
+        <Download className="size-5" />
+        {t("downloadPassport")}
+      </Button>
 
       {isLoading ? (
         <div className="flex justify-center py-16 text-muted-foreground">
@@ -103,7 +122,7 @@ export function SchemeDashboardTab() {
                   <div className="flex items-start justify-between gap-3">
                     <h3 className="text-base font-semibold leading-tight">{scheme.title}</h3>
                     <Badge variant="outline" className={cn("shrink-0", meta.className)}>
-                      {meta.dot} {meta.label}
+                      {meta.dot} {t(STATUS_KEY[scheme.status] ?? "statusPotential")}
                     </Badge>
                   </div>
 
@@ -111,7 +130,7 @@ export function SchemeDashboardTab() {
                     <Badge variant="secondary">{scheme.category}</Badge>
                     <Badge variant="outline" className="gap-1 text-muted-foreground">
                       <Ruler className="size-3" />
-                      {scheme.land_limit ?? "No limit"}
+                      {scheme.land_limit ?? t("noLimit")}
                     </Badge>
                     <Badge variant="outline" className="gap-1 border-accent/40 text-accent">
                       <BadgeIndianRupee className="size-3" />
@@ -123,10 +142,10 @@ export function SchemeDashboardTab() {
 
                   <div className="flex flex-wrap gap-2 pt-1">
                     <Button size="sm" variant="outline" onClick={() => setWhy(scheme)}>
-                      <HelpCircle className="size-4" /> Why Match?
+                      <HelpCircle className="size-4" /> {t("whyMatch")}
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => setDocs(scheme)}>
-                      <FileText className="size-4" /> Documents
+                      <FileText className="size-4" /> {t("documents")}
                     </Button>
                     <Button size="sm" className="ml-auto" asChild>
                       <a
@@ -134,7 +153,7 @@ export function SchemeDashboardTab() {
                         target="_blank"
                         rel="noreferrer noopener"
                       >
-                        Apply <ExternalLink className="size-4" />
+                        {t("apply")} <ExternalLink className="size-4" />
                       </a>
                     </Button>
                   </div>
@@ -144,7 +163,7 @@ export function SchemeDashboardTab() {
           })}
           {shown.length === 0 && (
             <p className="py-12 text-center text-sm text-muted-foreground">
-              No schemes in this filter.
+              {t("emptyFilter")}
             </p>
           )}
         </div>
@@ -153,7 +172,7 @@ export function SchemeDashboardTab() {
       <Dialog open={!!why} onOpenChange={(open) => !open && setWhy(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Why this match?</DialogTitle>
+            <DialogTitle>{t("whyTitle")}</DialogTitle>
             <DialogDescription>{why?.title}</DialogDescription>
           </DialogHeader>
           <ul className="space-y-2">
@@ -177,7 +196,7 @@ export function SchemeDashboardTab() {
       <Dialog open={!!docs} onOpenChange={(open) => !open && setDocs(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Document checklist</DialogTitle>
+            <DialogTitle>{t("docsTitle")}</DialogTitle>
             <DialogDescription>{docs?.title}</DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
