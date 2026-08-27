@@ -17,8 +17,15 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { CATEGORIES, CROPS, INDIAN_STATES } from "@/lib/farmpay";
+import { useI18n } from "@/lib/i18n";
+import type { PassportProfile } from "@/utils/pdfGenerator";
 
-export function FarmerProfileTab({ onSaved }: { onSaved: () => void }) {
+export function FarmerProfileTab({
+  onSaved,
+}: {
+  onSaved: (profile: PassportProfile) => void;
+}) {
+  const { t } = useI18n();
   const [fullName, setFullName] = useState("Ramesh Kumar");
   const [state, setState] = useState("Tamil Nadu");
   const [district, setDistrict] = useState("Thanjavur");
@@ -54,7 +61,13 @@ export function FarmerProfileTab({ onSaved }: { onSaved: () => void }) {
       return;
     }
     toast.success("Profile saved — matching schemes for you.");
-    onSaved();
+    onSaved({
+      fullName: fullName.trim(),
+      state,
+      district: district.trim(),
+      landholdingHa: Number(land) || 0,
+      crops,
+    });
   };
 
   return (
@@ -63,15 +76,15 @@ export function FarmerProfileTab({ onSaved }: { onSaved: () => void }) {
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
             <Sprout className="size-4 text-primary" />
-            Farmer Profile
+            {t("profileTitle")}
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Tell us about your farm and we&apos;ll match government schemes for you.
+            {t("profileIntro")}
           </p>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
+            <Label htmlFor="name">{t("farmerName")}</Label>
             <Input
               id="name"
               value={fullName}
@@ -82,7 +95,7 @@ export function FarmerProfileTab({ onSaved }: { onSaved: () => void }) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label>State</Label>
+              <Label>{t("state")}</Label>
               <Select value={state} onValueChange={setState}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select state" />
@@ -97,7 +110,7 @@ export function FarmerProfileTab({ onSaved }: { onSaved: () => void }) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="district">District</Label>
+              <Label htmlFor="district">{t("district")}</Label>
               <Input
                 id="district"
                 value={district}
@@ -109,7 +122,7 @@ export function FarmerProfileTab({ onSaved }: { onSaved: () => void }) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="land">Landholding (hectares)</Label>
+              <Label htmlFor="land">{t("landHolding")}</Label>
               <Input
                 id="land"
                 type="number"
@@ -120,7 +133,7 @@ export function FarmerProfileTab({ onSaved }: { onSaved: () => void }) {
               />
             </div>
             <div className="space-y-2">
-              <Label>Category</Label>
+              <Label>{t("category")}</Label>
               <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
@@ -137,7 +150,7 @@ export function FarmerProfileTab({ onSaved }: { onSaved: () => void }) {
           </div>
 
           <div className="space-y-2">
-            <Label>Primary Crops</Label>
+            <Label>{t("crop")}</Label>
             <div className="flex flex-wrap gap-2">
               {CROPS.map((crop) => {
                 const active = crops.includes(crop);
@@ -165,9 +178,9 @@ export function FarmerProfileTab({ onSaved }: { onSaved: () => void }) {
             <div className="flex items-center gap-3">
               <Droplets className="size-4 text-info" />
               <div>
-                <p className="text-sm font-medium">Irrigation Access</p>
+                <p className="text-sm font-medium">{t("irrigation")}</p>
                 <p className="text-xs text-muted-foreground">
-                  Bore well, canal or assured water source
+                  {t("irrigationHint")}
                 </p>
               </div>
             </div>
@@ -180,7 +193,7 @@ export function FarmerProfileTab({ onSaved }: { onSaved: () => void }) {
             className="h-12 w-full text-base font-semibold"
           >
             {saving && <Loader2 className="size-4 animate-spin" />}
-            Save &amp; Find Schemes
+            {saving ? t("saving") : t("checkEligibility")}
           </Button>
         </CardContent>
       </Card>
