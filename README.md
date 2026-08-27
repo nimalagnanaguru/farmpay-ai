@@ -1,4 +1,4 @@
-# FarmScheme AI
+# FarmPay AI
 
 Build a mobile-first React app called "FarmPay AI — Government Scheme Assistant" using Tailwind CSS, Lucide icons, and Shadcn UI components. 
 
